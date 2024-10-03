@@ -77,6 +77,20 @@ public class SearchPane extends SplitPane {
 				searchAction = () -> search(controller, () -> buildClassReferenceSearch(controller.getWorkspace()));
 				btn.setOnAction(e -> search());
 				break;
+			case CLASS_INHERITANCE:
+				addInput(new Input<>(params, "ui.search.inheritance.name", "ui.search.inheritance.name.sub",
+						NullableText::new, NullableText::get, NullableText::setText));
+				addInput(new Input<>(params, "ui.search.inheritance.interfaces", "ui.search.inheritance.interfaces.sub",
+						CheckBox::new, CheckBox::isSelected, CheckBox::setSelected));
+				addInput(new Input<>(params, "ui.search.matchmode", "ui.search.matchmode.sub", () -> {
+					ComboBox<StringMatchMode> comboMode = new ComboBox<>();
+					comboMode.getItems().setAll(StringMatchMode.values());
+					comboMode.setValue(StringMatchMode.CONTAINS);
+					return comboMode;
+				}, ComboBoxBase::getValue, ComboBoxBase::setValue));
+				searchAction = () -> search(controller, () -> buildClassInheritanceSearch(controller.getWorkspace()));
+				btn.setOnAction(e -> search());
+				break;
 			case MEMBER_REFERENCE:
 				addInput(new Input<>(params, "ui.search.mem_reference.owner", "ui.search.mem_reference.owner.sub",
 						NullableText::new, NullableText::get, NullableText::setText));
@@ -194,6 +208,14 @@ public class SearchPane extends SplitPane {
 		return SearchBuilder.in(workspace)
 				.query(new ClassReferenceQuery(
 						input("ui.search.cls_reference.name"), input("ui.search.matchmode")))
+				.skipPackages(input("ui.search.skippackages"))
+				.build();
+	}
+
+	private SearchCollector buildClassInheritanceSearch(Workspace workspace) {
+		return SearchBuilder.in(workspace)
+				.query(new ClassInheritanceQuery(workspace, input("ui.search.inheritance.name"),
+						input("ui.search.matchmode"), !(boolean)input("ui.search.inheritance.interfaces")))
 				.skipPackages(input("ui.search.skippackages"))
 				.build();
 	}

@@ -120,6 +120,7 @@ public class MainMenu extends MenuBar {
 				new ActionMenuItem(translate("ui.menubar.search.string"), this::searchString),
 				new ActionMenuItem(translate("ui.menubar.search.value"), this::searchValue),
 				new ActionMenuItem(translate("ui.menubar.search.cls_reference"), this::searchClassReference),
+				new ActionMenuItem(translate("ui.menubar.search.inheritance"), this::searchInheritance),
 				new ActionMenuItem(translate("ui.menubar.search.mem_reference"), this::searchMemberReference),
 				new ActionMenuItem(translate("ui.menubar.search.declare"),  this::searchDeclaration),
 				new ActionMenuItem(translate("ui.menubar.search.insn"),  this::searchInsn));
@@ -270,6 +271,8 @@ public class MainMenu extends MenuBar {
 	public SearchPane searchInsn() {
 		return search(QueryType.INSTRUCTION_TEXT, "insn");
 	}
+
+	public SearchPane searchInheritance() { return search(QueryType.CLASS_INHERITANCE, "inheritance"); }
 
 	private SearchPane search(QueryType type, String key) {
 		SearchPane pane = new SearchPane(controller, type);
