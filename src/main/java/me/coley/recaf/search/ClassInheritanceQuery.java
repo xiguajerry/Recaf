@@ -53,6 +53,8 @@ public class ClassInheritanceQuery extends Query {
      */
     public void match(int access, String name) {
 		ClassReader reader = workspace.getClassReader(name);
+
+		StringMatchMode stringMode = this.stringMode == null ? StringMatchMode.EQUALS : this.stringMode;
 		if (stringMode.match(this.name, reader.getSuperName()) || (!ignoreInterfaces
 				&& Arrays.stream(reader.getInterfaces()).anyMatch((interf) -> stringMode.match(this.name, interf)))) {
 			getMatched().add(new ClassResult(access, name));
