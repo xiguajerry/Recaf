@@ -10,6 +10,14 @@ Recaf abstracts away:
 * Wide instructions
 * And more!
 
+This repo contains a modified version of Recaf 2.x. This build uses Java11 and has features to enhance experiences:
+* Decompile classes using VineFlower instead of FernFlower
+* Searching for inheritance (including interfaces)
+* Export decompilation results
+* Show hints about Mixin Targets & Fabric Mod Entrypoints
+* Generate ASM codes that corresponding to class binaries via ASMifier
+* Remapping Fabric mods via TinyV2 Mappings (requires libraries added)
+
 Don't know bytecode? That's ok because Recaf supports [recompiling decompiled code](https://col-e.github.io/Recaf-documentation/use-edit-via-decompile.html) and inserting [single line Java statements into the bytecode](https://col-e.github.io/Recaf-documentation/use-assembler.html).
 
 For more information: _[Read the documentation](https://col-e.github.io/Recaf-documentation/)_
