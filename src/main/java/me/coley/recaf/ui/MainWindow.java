@@ -99,7 +99,7 @@ public class MainWindow extends Application {
 		controller.config().keys().registerMainWindowKeys(controller, stage, scene);
 		stage.setScene(scene);
 		// Display notice of future versions
-		tabs.getTabs().add(new Tab("Recaf 4.0.0", generateFutureVersionNotice()));
+//		tabs.getTabs().add(new Tab("Recaf 4.0.0", generateFutureVersionNotice()));
 	}
 
 	private Node generateFutureVersionNotice() {
