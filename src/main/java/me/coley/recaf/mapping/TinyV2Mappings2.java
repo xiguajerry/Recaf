@@ -14,6 +14,7 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
+// TODO: Make it global
 public class TinyV2Mappings2 extends FileMappings {
     public HashMap<String, MappingEntry> classMappings = null;
     public HashMap<String, MappingEntry> fieldMappings = null;

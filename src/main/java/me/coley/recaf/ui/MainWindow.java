@@ -4,8 +4,6 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
-import javafx.geometry.Pos;
-import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.ScrollPane;
@@ -13,7 +11,6 @@ import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tab;
 import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import me.coley.recaf.Recaf;
 import me.coley.recaf.control.gui.GuiController;
@@ -23,6 +20,7 @@ import me.coley.recaf.plugin.api.WorkspacePlugin;
 import me.coley.recaf.ui.controls.MarkdownView;
 import me.coley.recaf.ui.controls.ViewportTabs;
 import me.coley.recaf.ui.controls.WorkspaceNavigator;
+import me.coley.recaf.ui.controls.pane.WorkspaceSummaryPane;
 import me.coley.recaf.ui.controls.view.ClassViewport;
 import me.coley.recaf.ui.controls.view.FileViewport;
 import me.coley.recaf.util.OSUtil;
@@ -91,7 +89,7 @@ public class MainWindow extends Application {
 		root.setCenter(split);
 		viewRoot.setCenter(tabs);
 		// Navigation
-		updateWorkspaceNavigator();
+		updateWorkspaceNavigator(null);
 		PluginsManager.getInstance().addPlugin(new WindowPlugin());
 		// Create scene & display the window
 		Scene scene = new Scene(root, 800, 600);
@@ -156,8 +154,21 @@ public class MainWindow extends Application {
 		return noticeWrapper;
 	}
 
-	private void updateWorkspaceNavigator() {
-		Platform.runLater(() -> navRoot.setCenter(navigator = new WorkspaceNavigator(controller)));
+	private Node generateWorkspaceSummary(Workspace workspace) {
+
+		ScrollPane summaryWrapper = new ScrollPane(new WorkspaceSummaryPane(workspace));
+		summaryWrapper.setPadding(new Insets(15));
+		summaryWrapper.setFitToWidth(true);
+		summaryWrapper.setFitToHeight(true);
+		return summaryWrapper;
+	}
+
+	private void updateWorkspaceNavigator(Workspace workspace) {
+		Platform.runLater(() -> {
+			navRoot.setCenter(navigator = new WorkspaceNavigator(controller));
+			if (workspace != null)
+				tabs.getTabs().add(new Tab("Workspace Summary", generateWorkspaceSummary(workspace)));
+		});
 	}
 
 	/**
@@ -344,7 +355,7 @@ public class MainWindow extends Application {
 
 		@Override
 		public void onOpened(Workspace workspace) {
-			updateWorkspaceNavigator();
+			updateWorkspaceNavigator(workspace);
 		}
 
 		@Override

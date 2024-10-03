@@ -51,6 +51,10 @@ public class JavaResourceTree extends BorderPane {
 
     }
 
+    public void select(TreeItem<JavaResource> item) {
+        tree.getSelectionModel().select(item);
+    }
+
     /**
      * Filter items in the tree that match <i>(contains)</i> the given text.
      *
