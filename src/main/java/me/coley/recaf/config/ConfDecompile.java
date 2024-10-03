@@ -46,9 +46,28 @@ public class ConfDecompile extends Config {
 
 	// TODO: Add cfr options
 
-	// ========================= FERNFLOWER OPTIONS ======================== //
+	// ========================= VINEFLOWER OPTIONS ======================== //
 
-	// TODO: Add ff options
+	// TODO: Add vf options
+	// 		 别问为什么不继续写了 为什么没翻译 问就是写不动了:(
+	@Conf("decompile.vf.remove_bridge")
+	public boolean vfRemoveBridge = false;
+	@Conf("decompile.vf.remove_synthetic")
+	public boolean vfRemoveSynthetic = false;
+	@Conf("decompile.vf.decompile_inner")
+	public boolean vfDecompileInner = true;
+	@Conf("decompile.vf.decompile_class_1_4")
+	public boolean vfDecompileClass1_4 = true;
+	@Conf("decompile.vf.decompile_assertions")
+	public boolean vfDecompileAssertions = true;
+	@Conf("decompile.vf.hide_empty_super")
+	public boolean vfHideEmptySuper = true;
+	@Conf("decompile.vf.hide_default_constructor")
+	public boolean vfHideDefaultConstructor = true;
+	@Conf("decompile.vf.decompile_generic_signatures")
+	public boolean vfDecompileGenericSignatures = true;
+	@Conf("decompile.vf.incorporate_returns")
+	public boolean vfIncorporateReturns = true;
 
 	// ========================= PROCYON OPTIONS ======================== //
 

@@ -24,6 +24,7 @@
 		<spotbugs-mvn.version>3.1.12.2</spotbugs-mvn.version>
 		<apache.commons.version>3.0</apache.commons.version>
 		<mappingio.version>0.6.1</mappingio.version>
+		<vineflower.version>1.10.1</vineflower.version>
 	</properties>
 	<!-- Additional repo's -->
 	<repositories>
@@ -133,11 +134,11 @@
 			<version>${procyon.version}</version>
 		</dependency>
 		<!-- http://files.minecraftforge.net/maven/net/minecraftforge/fernflower/ -->
-		<dependency>
-			<groupId>net.minecraftforge</groupId>
-			<artifactId>forgeflower</artifactId>
-			<version>${ff.version}</version>
-		</dependency>
+<!--		<dependency>-->
+<!--			<groupId>net.minecraftforge</groupId>-->
+<!--			<artifactId>forgeflower</artifactId>-->
+<!--			<version>${ff.version}</version>-->
+<!--		</dependency>-->
 		<!-- https://mvnrepository.com/artifact/com.google.guava/guava -->
 		<dependency>
 			<groupId>com.google.guava</groupId>
@@ -334,6 +335,11 @@
 			<artifactId>annotations</artifactId>
 			<version>13.0</version>
 		</dependency>
+		<dependency>
+			<groupId>org.vineflower</groupId>
+			<artifactId>vineflower</artifactId>
+			<version>${vineflower.version}</version>
+		</dependency>
 	</dependencies>
 	<build>
 		<resources>
@@ -351,8 +357,8 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.13.0</version>
 				<configuration>
-					<source>1.8</source>
-					<target>1.8</target>
+					<source>11</source>
+					<target>11</target>
 					<compilerArgs>
 						<arg>-Xlint:unchecked</arg>
 					</compilerArgs>
@@ -444,73 +450,6 @@
 					</execution>
 				</executions>
 			</plugin>
-			<!--
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-shade-plugin</artifactId>
-				<version>3.2.2</version>
-				<executions>
-					<execution>
-						<phase>package</phase>
-						<goals>
-							<goal>shade</goal>
-						</goals>
-						<configuration>
-							<relocations>
-								<relocation>
-									<pattern>org.objectweb</pattern>
-									<shadedPattern>lib.org.objectweb</shadedPattern>
-								</relocation>
-								<relocation>
-									<pattern>javassit</pattern>
-									<shadedPattern>lib.javassit</shadedPattern>
-								</relocation>
-							</relocations>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			-->
-			<!--
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>3.2.0</version>
-				<executions>
-					<execution>
-						<id>attach-javadocs</id>
-						<goals>
-							<goal>jar</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			-->
-			<!-- Style enforcement -->
-			<!--
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-checkstyle-plugin</artifactId>
-				<version>3.3.1</version>
-				<executions>
-					<execution>
-						<phase>process-sources</phase>
-						<goals>
-							<goal>check</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<configLocation>checkstyle.xml</configLocation>
-					<suppressionsLocation>checkstyle-suppressions.xml</suppressionsLocation>
-					<suppressionsFileExpression>checkstyle.suppressions.file</suppressionsFileExpression>
-					<consoleOutput>true</consoleOutput>
-					<failsOnError>true</failsOnError>
-					<failOnViolation>true</failOnViolation>
-					<violationSeverity>warning</violationSeverity>
-					<linkXRef>false</linkXRef>
-				</configuration>
-			</plugin>-->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
@@ -521,24 +460,6 @@
 					</excludes>
 				</configuration>
 			</plugin>
-            <!-- Bug/quality enforcement
-                 mvn spotbugs:spotbugs - create report
-                 mvn spotbugs:gui - show gui
-            -->
-			<!-- Disabled due to complaints by users of it not resolving
-			<plugin>
-				<groupId>com.github.spotbugs</groupId>
-				<artifactId>spotbugs-maven-plugin</artifactId>
-				<version>${spotbugs-mvn.version}</version>
-				<dependencies>
-					<dependency>
-						<groupId>com.github.spotbugs</groupId>
-						<artifactId>spotbugs</artifactId>
-						<version>${spotbugs.version}</version>
-					</dependency>
-				</dependencies>
-			</plugin>
-			-->
 		</plugins>
 	</build>
 </project>

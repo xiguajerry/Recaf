@@ -3,8 +3,8 @@ package me.coley.recaf.decompile;
 import com.strobel.Procyon;
 import me.coley.recaf.control.Controller;
 import me.coley.recaf.decompile.cfr.CfrDecompiler;
-import me.coley.recaf.decompile.fernflower.FernFlowerDecompiler;
 import me.coley.recaf.decompile.procyon.ProcyonDecompiler;
+import me.coley.recaf.decompile.vineflower.VineFlowerDecompiler;
 import me.coley.recaf.util.StringUtil;
 import org.benf.cfr.reader.util.CfrVersionInfo;
 
@@ -17,7 +17,7 @@ import java.util.function.Function;
  */
 public enum DecompileImpl {
 	CFR(CfrDecompiler::new),
-	FERNFLOWER(FernFlowerDecompiler::new),
+	VINEFLOWER(VineFlowerDecompiler::new),
 	PROCYON(ProcyonDecompiler::new);
 
 	private final Function<Controller, Decompiler> supplier;
@@ -41,8 +41,8 @@ public enum DecompileImpl {
 		switch(this) {
 			case CFR:
 				return "CFR";
-			case FERNFLOWER:
-				return "FernFlower";
+			case VINEFLOWER:
+				return "VineFlower";
 			case PROCYON:
 				return "Procyon";
 			default:
@@ -57,8 +57,8 @@ public enum DecompileImpl {
 		switch(this) {
 			case CFR:
 				return "CFR " + CfrVersionInfo.VERSION;
-			case FERNFLOWER:
-				return "FernFlower"; // Fernflower does not have an easily accessible version number...
+			case VINEFLOWER:
+				return "VineFlower"; // Fernflower does not have an easily accessible version number...
 			case PROCYON:
 				return "Procyon " + Procyon.version();
 			default:
