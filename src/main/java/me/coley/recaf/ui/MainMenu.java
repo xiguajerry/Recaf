@@ -4,13 +4,16 @@ import javafx.scene.Node;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.SeparatorMenuItem;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
 import me.coley.recaf.Recaf;
+import me.coley.recaf.command.impl.Decompile;
 import me.coley.recaf.command.impl.Export;
 import me.coley.recaf.config.ConfBackend;
 import me.coley.recaf.control.gui.GuiController;
+import me.coley.recaf.decompile.Decompiler;
 import me.coley.recaf.mapping.MappingImpl;
 import me.coley.recaf.mapping.Mappings;
 import me.coley.recaf.mapping.TinyV2Mappings;
@@ -27,10 +30,11 @@ import org.apache.commons.io.FileUtils;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -46,6 +50,7 @@ import static me.coley.recaf.util.UiUtil.getFileIcon;
 public class MainMenu extends MenuBar {
 	private final FileChooser fcLoadApp = new FileChooser();
 	private final FileChooser fcLoadMap = new FileChooser();
+	private final DirectoryChooser dcSaveDecompiled = new DirectoryChooser();
 	private final FileChooser fcSaveApp = new FileChooser();
 	private final FileChooser fcSaveWorkspace = new FileChooser();
 	private final FileChooser fcSaveMap = new FileChooser();
@@ -91,6 +96,7 @@ public class MainMenu extends MenuBar {
 				mFile.getItems().add(mFileRecent);
 			mFile.getItems().addAll(
 					new ActionMenuItem(translate("ui.menubar.file.addlib"), this::addLibrary),
+					new ActionMenuItem(translate("ui.menubar.file.savedecompiled"), this::saveDecompiled),
 					new ActionMenuItem(translate("ui.menubar.file.saveapp"), this::saveApplication),
 					new ActionMenuItem(translate("ui.menubar.file.saveworkspace"), this::saveWorkspace));
 			// Mapping menu
@@ -168,6 +174,7 @@ public class MainMenu extends MenuBar {
 		fcLoadApp.setTitle(translate("ui.fileprompt.open"));
 		fcLoadApp.getExtensionFilters().add(loadFilter);
 		fcLoadApp.setSelectedExtensionFilter(loadFilter);
+		dcSaveDecompiled.setTitle(translate("ui.fileprompt.savedecomp"));
 		fcSaveApp.setTitle(translate("ui.fileprompt.export"));
 		fcSaveApp.getExtensionFilters().add(saveFilter);
 		fcSaveApp.setSelectedExtensionFilter(saveFilter);
@@ -309,6 +316,33 @@ public class MainMenu extends MenuBar {
 					error(ex, "Failed to add library: {}", file.getName());
 					ExceptionAlert.show(ex, "Failed to add library: " + file.getName());
 				}
+			}
+		}
+	}
+
+	private void saveDecompiled() {
+		if (controller.getWorkspace() != null) {
+			dcSaveDecompiled.setInitialDirectory(config().getRecentSaveAppDir());
+			File file = dcSaveDecompiled.showDialog(null);
+			assert file.isDirectory();
+
+			Decompiler decompiler = controller.config().decompile().decompiler.create(controller);
+			Map<String, byte[]> sources = new LinkedHashMap<>();
+			Set<String> classes = controller.getWorkspace().getPrimaryClassNames();
+			classes.forEach(className -> {
+				if (className.contains("$")) return;
+				try {
+					String decompiledSource = decompiler.decompile(className);
+					sources.put(className + ".java", decompiledSource.getBytes(UTF_8));
+				} catch (Exception ignored) {}
+			});
+
+			try {
+				Export.writeDirectory(file, sources);
+				config().recentSaveApp = file.getAbsolutePath();
+			} catch (IOException ex) {
+				error(ex, "Failed to save decompiled application to directory: {}", file.getName());
+				ExceptionAlert.show(ex, "Failed to save decompiled application to directory: " + file.getName());
 			}
 		}
 	}

@@ -53,6 +53,7 @@
 	"ui.fileprompt.workspace.extensions": "Recaf workspaces",
 	"ui.fileprompt.mapping": "Select mappings",
 	"ui.fileprompt.mapping.extensions": "Mappings",
+	"ui.fileprompt.savedecomp": "Export Decompilation",
 	"ui.fileprompt.export.mapping": "Save mappings",
 	"ui.fileprompt.export.mapping.extensions": "Simple mappings",
 
@@ -61,6 +62,7 @@
 	"ui.menubar.file.newwizard": "New workspace",
 	"ui.menubar.file.load": "Load",
 	"ui.menubar.file.recent": "Load recent",
+	"ui.menubar.file.savedecompiled": "Export decompilation",
 	"ui.menubar.file.saveapp": "Export program",
 	"ui.menubar.file.saveworkspace": "Export workspace",
 	"ui.menubar.file.agentexport": "Apply changes",

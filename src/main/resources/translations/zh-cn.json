@@ -54,6 +54,7 @@
 	"ui.fileprompt.mapping": "选择映射",
 	"ui.fileprompt.mapping.extensions": "映射",
 	"ui.fileprompt.export.mapping": "导出映射",
+	"ui.fileprompt.savedecomp": "导出反编译结果",
 	"ui.fileprompt.export.mapping.extensions": "简单映射",
 
 	"ui.menubar.file": "文件",
@@ -62,6 +63,7 @@
 	"ui.menubar.file.load": "加载",
 	"ui.menubar.file.recent": "最近加载",
 	"ui.menubar.file.saveapp": "导出程序",
+	"ui.menubar.file.savedecompiled": "导出反编译结果",
 	"ui.menubar.file.saveworkspace": "导出工作空间",
 	"ui.menubar.file.agentexport": "应用更改",
 	"ui.menubar.mapping": "映射",
