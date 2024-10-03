@@ -432,21 +432,40 @@ public class MainMenu extends MenuBar {
 		File file = fcLoadMap.showOpenDialog(null);
 		if (file != null) {
 			try {
-				Mappings mappings = new TinyV2Mappings2(file.toPath(), controller.getWorkspace())
-						.getMappings(subType);
-//				File dump1 = new File("D:\\mappings.txt");
-//				try (FileWriter writer = new FileWriter(dump1)) {
-//					Map<String, String> mapping = mappings.getMappings();
-//					if (mapping != null) {
-//						mapping.forEach((key, value) -> {
-//							try {
-//								writer.write(key + " -> " + value + "\n");
-//							} catch (IOException e) {
-//								throw new RuntimeException(e);
-//							}
-//						});
-//					}
-//				}
+				TinyV2Mappings2 tinyMappings = new TinyV2Mappings2(file.toPath(), controller.getWorkspace());
+
+				Mappings mappings = tinyMappings.getMappings(subType, 0);
+				/*File dump1 = new File("D:\\mappings1.txt");
+				try (FileWriter writer = new FileWriter(dump1)) {
+					Map<String, String> mapping = mappings.getMappings();
+					if (mapping != null) {
+						mapping.forEach((key, value) -> {
+							try {
+								writer.write(key + " -> " + value + "\n");
+							} catch (IOException e) {
+								throw new RuntimeException(e);
+							}
+						});
+					}
+				}*/
+				mappings.setCheckFieldHierarchy(true);
+				mappings.setCheckMethodHierarchy(true);
+				mappings.accept(controller.getWorkspace().getPrimary());
+
+				mappings = tinyMappings.getMappings(subType, 1);
+				/*File dump2 = new File("D:\\mappings2.txt");
+				try (FileWriter writer = new FileWriter(dump2)) {
+					Map<String, String> mapping = mappings.getMappings();
+					if (mapping != null) {
+						mapping.forEach((key, value) -> {
+							try {
+								writer.write(key + " -> " + value + "\n");
+							} catch (IOException e) {
+								throw new RuntimeException(e);
+							}
+						});
+					}
+				}*/
 				mappings.setCheckFieldHierarchy(true);
 				mappings.setCheckMethodHierarchy(true);
 				mappings.accept(controller.getWorkspace().getPrimary());

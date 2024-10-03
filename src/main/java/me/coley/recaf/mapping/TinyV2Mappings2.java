@@ -7,6 +7,7 @@ import net.fabricmc.mappingio.MappedElementKind;
 import net.fabricmc.mappingio.MappingReader;
 import net.fabricmc.mappingio.MappingVisitor;
 import org.jetbrains.annotations.Nullable;
+import org.objectweb.asm.Type;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -62,7 +63,12 @@ public class TinyV2Mappings2 extends FileMappings {
         return missing.get();
     }
 
-    public Mappings getMappings(TinyV2Mappings.TinyV2SubType direction) {
+    /**
+     * Don't modify this unless you know what you are doing.
+     */
+    // stage 0 -> class
+    // stage 1 -> members
+    public Mappings getMappings(TinyV2Mappings.TinyV2SubType direction, int stage) {
         String from;
         String to;
         switch (direction) {
@@ -105,22 +111,98 @@ public class TinyV2Mappings2 extends FileMappings {
 
         int fromIndex = namespaces.indexOf(from);
         int toIndex = namespaces.indexOf(to);
-        Map<String, String> mappings = new HashMap<>();
-        classMappings.values().forEach(entry -> mappings.put(entry.names[fromIndex], entry.names[toIndex]));
-        methodMappings.values().forEach(entry -> mappings.put(entry.names[fromIndex], entry.names[toIndex]));
-        fieldMappings.values().forEach(entry -> mappings.put(entry.names[fromIndex], entry.names[toIndex]));
+        Map<String, String> mappings = new LinkedHashMap<>();
+        if (stage == 0) {
+            classMappings.values().forEach(entry -> mappings.put(entry.names[fromIndex], entry.names[toIndex]));
+        } else {
+            classMappings.values().forEach(entry -> mappings.put(entry.names[fromIndex], entry.names[toIndex]));
+//        methodMappings.values().forEach(entry -> mappings.put(entry.names[fromIndex], stripMethodName(entry.names[toIndex])));
+//        fieldMappings.values().forEach(entry -> mappings.put(entry.names[fromIndex], stripFieldName(entry.names[toIndex])));
+            methodMappings.values().forEach(entry -> {
+                final String originalQualifier = entry.names[fromIndex];
+                String newOwner = mappings.get(stripOwnerName(originalQualifier));
+                Type returnType = Type.getReturnType(stripMethodDesc(originalQualifier));
+                Type[] argTypes = Type.getArgumentTypes(stripMethodDesc(originalQualifier));
+                if (returnType.getSort() == Type.OBJECT) {
+                    MappingEntry entry0 = classMappings.get(returnType.getInternalName());
+                    String newReturnInternalType = entry0 != null ? entry0.names[toIndex] : null;
+                    returnType = newReturnInternalType != null ? Type.getObjectType(newReturnInternalType) : returnType;
+                } else if (returnType.getSort() == Type.ARRAY) {
+                    Type elementType = returnType.getElementType();
+                    if (elementType.getSort() == Type.ARRAY) {
+                        String newElementType = classMappings.get(elementType.getInternalName()).names[toIndex];
+                        returnType = Type.getType(returnType.getInternalName().replace(
+                                elementType.getInternalName(), newElementType == null ? elementType.getInternalName() : "L" + newElementType
+                        ));
+                    }
+                }
+                for (int i = 0; i < argTypes.length; i++) {
+                    final Type argType = argTypes[i];
+                    if (argType.getSort() != Type.OBJECT && argType.getSort() != Type.ARRAY) continue;
+                    if (argType.getSort() == Type.ARRAY) {
+                        Type elementType = argType.getElementType();
+                        if (elementType.getSort() == Type.ARRAY) {
+                            String newElementType = classMappings.get(elementType.getInternalName()).names[toIndex];
+                            argTypes[i] = Type.getType(argType.getInternalName().replace(
+                                    elementType.getInternalName(), newElementType == null ? elementType.getInternalName() : "L" + newElementType
+                            ));
+                        }
+                    } else {
+                        MappingEntry entry0 = classMappings.get(argType.getInternalName());
+                        String newArgInternalType = entry0 != null ? entry0.names[toIndex] : null;
+                        argTypes[i] = newArgInternalType != null ? Type.getObjectType(newArgInternalType) : returnType;
+                    }
+                }
+
+                Type newMethodType;
+                if (argTypes.length == 0 ) newMethodType = Type.getMethodType(returnType);
+                else newMethodType = Type.getMethodType(returnType, argTypes);
+                mappings.put(replaceDesc(replaceOwner(entry.names[fromIndex], newOwner), newMethodType.getDescriptor()), stripMethodName(entry.names[toIndex]));
+                mappings.put(replaceDesc(entry.names[fromIndex], newMethodType.getDescriptor()), stripMethodName(entry.names[toIndex]));
+            });
+            fieldMappings.values().forEach(entry -> {
+                String newOwner = mappings.get(stripOwnerName(entry.names[fromIndex]));
+                mappings.put(replaceOwner(entry.names[fromIndex], newOwner), stripFieldName(entry.names[toIndex]));
+                mappings.put(entry.names[fromIndex], stripFieldName(entry.names[toIndex]));
+            });
+        }
 
         return new Mappings(workspace) {
             {
-                this.setMappings(mappings);
+                this.setMappings(Collections.unmodifiableMap(mappings));
             }
         };
+    }
+
+    private static String stripFieldName(String qualifier) {
+        return qualifier.substring(qualifier.lastIndexOf('.') + 1);
+    }
+
+    private static String stripMethodName(String qualifier) {
+        return qualifier.substring(qualifier.lastIndexOf('.') + 1, qualifier.indexOf("("));
+    }
+
+    private static String stripMethodDesc(String qualifier) {
+        return qualifier.substring(qualifier.lastIndexOf('('));
+    }
+
+    private static String stripOwnerName(String qualifier) {
+        return qualifier.substring(0, qualifier.lastIndexOf('.'));
+    }
+
+    private static String replaceOwner(String qualifier, String newOwner) {
+        return newOwner + qualifier.substring(qualifier.lastIndexOf('.'));
+    }
+
+    private static String replaceDesc(String qualifier, String newDesc) {
+        return qualifier.substring(0, qualifier.indexOf("(")) + newDesc;
     }
 
     static class TinyMappingVisitor implements MappingVisitor {
         private String currentClassName = null;
         private String currentMethodQualifier = null;
         private String currentMethodDesc = null;
+        private Type currentMethodType = null;
         private String currentFieldQualifier = null;
         public List<String> mappingElements = new ArrayList<>();
         public String[] namespaces = null;
@@ -155,11 +237,12 @@ public class TinyV2Mappings2 extends FileMappings {
         public boolean visitMethod(String name, @Nullable String desc) throws IOException {
             currentMethodQualifier = currentClassName + "." + name;
             currentMethodDesc = desc;
+            currentMethodType = Type.getMethodType(desc);
             return true;
         }
 
         @Override
-        public boolean visitMethodArg(int i, int i1, @Nullable String s) throws IOException {
+        public boolean visitMethodArg(int argPosition, int lvIndex, @Nullable String srcName) throws IOException {
             return false;
         }
 
