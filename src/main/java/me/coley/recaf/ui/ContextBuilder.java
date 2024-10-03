@@ -1,5 +1,6 @@
 package me.coley.recaf.ui;
 
+import com.google.common.collect.Lists;
 import javafx.application.Platform;
 import javafx.scene.control.*;
 import javafx.scene.input.Clipboard;
@@ -28,15 +29,22 @@ import me.coley.recaf.workspace.JavaResource;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.util.ASMifier;
+import org.objectweb.asm.util.TraceClassVisitor;
+import org.objectweb.asm.util.TraceMethodVisitor;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.HashSet;
 import java.util.Map;
 
 import static me.coley.recaf.util.LangUtil.translate;
+import static org.objectweb.asm.ClassReader.SKIP_FRAMES;
 
 /**
  * Context menu builder.
@@ -304,6 +312,19 @@ public class ContextBuilder {
 					});
 					menu.getItems().addAll(new SeparatorMenuItem(), addField, addMethod);
 				}
+				menu.getItems().addAll(
+						new ActionMenuItem(translate("misc.asmifier"), () -> {
+							ASMifier asmifier = new ASMifier();
+							StringWriter stringWriter = new StringWriter();
+							PrintWriter printWriter = new PrintWriter(stringWriter);
+							new ClassReader(controller.getWorkspace().getPrimary().getClasses().get(name))
+									.accept(new TraceClassVisitor(null, asmifier, printWriter),
+											getController().config().enhancement().asmifierIgnoreFrames ? SKIP_FRAMES : 0);
+							ClipboardContent content = new ClipboardContent();
+							content.putString(stringWriter.toString());
+							Clipboard.getSystemClipboard().setContent(content);
+						})
+				);
 			}
 			menu.getItems().addAll(
 					new SeparatorMenuItem(),
@@ -465,6 +486,21 @@ public class ContextBuilder {
 					popup.show(main);
 				});
 				menu.getItems().add(rename);
+				menu.getItems().add(new ActionMenuItem(translate("misc.asmifier"), () -> {
+					ClassNode ownerNode = new ClassNode();
+					new ClassReader(getController().getWorkspace().getPrimary().getClasses().get(owner))
+							.accept(ownerNode, getController().config().enhancement().asmifierIgnoreFrames ? SKIP_FRAMES : 0);
+					MethodNode methodNode = ownerNode.methods.stream().filter(m -> m.name.equals(name) && m.desc.equals(desc)).findFirst().get();
+					ASMifier asmifier = new ASMifier();
+					methodNode.accept(new TraceMethodVisitor(null, asmifier));
+					StringWriter stringWriter = new StringWriter();
+					PrintWriter printWriter = new PrintWriter(stringWriter);
+					asmifier.print(printWriter);
+					Log.info("{}", asmifier.text);
+					ClipboardContent content = new ClipboardContent();
+					content.putString(stringWriter.toString());
+					Clipboard.getSystemClipboard().setContent(content);
+				}));
 			}
 		}
 		// Add edit options

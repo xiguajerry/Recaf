@@ -7,6 +7,9 @@ public class ConfEnhancement extends Config {
     @Conf("enhancement.showfabricentrypoints")
     public boolean showFabricEntrypoints = true;
 
+    @Conf("enhancement.asmifier.ignoreframes")
+    public boolean asmifierIgnoreFrames = false;
+
     ConfEnhancement() {
         super("enhancement");
     }
