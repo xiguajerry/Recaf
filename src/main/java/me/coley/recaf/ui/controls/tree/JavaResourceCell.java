@@ -24,12 +24,12 @@ import static me.coley.recaf.ui.ContextBuilder.menu;
  *
  * @author Matt
  */
-public class JavaResourceCell extends TreeCell {
+public class JavaResourceCell extends TreeCell<JavaResource> {
 	private static final Map<Class<?>, Consumer<JavaResourceCell>> CLASS_TO_THING = new HashMap<>();
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public void updateItem(Object item, boolean empty) {
+	public void updateItem(JavaResource item, boolean empty) {
 		super.updateItem(item, empty);
 		if (empty) {
 			setGraphic(null);

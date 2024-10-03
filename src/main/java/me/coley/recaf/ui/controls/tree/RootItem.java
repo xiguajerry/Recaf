@@ -21,7 +21,7 @@ public class RootItem extends BaseItem {
 	public RootItem(JavaResource resource) {
 		super(resource);
 		// classes sub-folder
-		if(resource.getClasses().size() > 0) {
+		if(!resource.getClasses().isEmpty()) {
 			addSourceChild(classes = new ClassFolderItem(resource));
 			// Register listeners and update if the classes update
 			resource.getClasses().getRemoveListeners().add(InternalConsumer.internal(r -> {
@@ -49,7 +49,7 @@ public class RootItem extends BaseItem {
 			}));
 		}
 		// files sub-folder
-		if(resource.getFiles().size() > 0) {
+		if(!resource.getFiles().isEmpty()) {
 			addSourceChild(files = new FileFolderItem(resource));
 			// Register listeners and update if the files update
 			resource.getFiles().getRemoveListeners().add(InternalConsumer.internal(r -> {

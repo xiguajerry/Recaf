@@ -23,6 +23,7 @@ import static me.coley.recaf.util.Log.*;
 public class ConfigManager {
 	private static final String KEY_DISPLAY = "display";
 	private static final String KEY_KEYBINDING = "keybinding";
+	private static final String KEY_ENHANCEMENT = "enhancement";
 	private static final String KEY_DECOMPILE = "decompile";
 	private static final String KEY_ASSEMBLER = "assembler";
 	private static final String KEY_UPDATE = "update";
@@ -51,6 +52,7 @@ public class ConfigManager {
 		// Setup each instance
 		configs.put(KEY_DISPLAY, new ConfDisplay());
 		configs.put(KEY_KEYBINDING, new ConfKeybinding());
+		configs.put(KEY_ENHANCEMENT, new ConfEnhancement());
 		configs.put(KEY_DECOMPILE, new ConfDecompile());
 		configs.put(KEY_ASSEMBLER, new ConfAssembler());
 		configs.put(KEY_UPDATE, new ConfUpdate());
@@ -79,6 +81,13 @@ public class ConfigManager {
 	 */
 	public ConfKeybinding keys() {
 		return (ConfKeybinding) configs.get(KEY_KEYBINDING);
+	}
+
+	/**
+	 * @return Enhancement configuration.
+	 */
+	public ConfEnhancement enhancement() {
+		return (ConfEnhancement) configs.get(KEY_ENHANCEMENT);
 	}
 
 	/**

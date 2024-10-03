@@ -82,6 +82,13 @@ public class ConfigPane extends ColumnPane {
 		setupConfigControls(config);
 	}
 
+	public ConfigPane(GuiController controller, ConfEnhancement config) {
+		this(config);
+		editorOverrides.put("enhancement.showmixintargets", Toggle::new);
+		editorOverrides.put("enhancement.showfabricentrypoints", Toggle::new);
+		setupConfigControls(config);
+	}
+
 	/**
 	 * @param controller
 	 * 		Gui controller.

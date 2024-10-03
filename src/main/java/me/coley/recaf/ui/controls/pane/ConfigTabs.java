@@ -24,10 +24,11 @@ public class ConfigTabs extends TabPane {
 		// Add default tabs
 		Tab tabDisplay = new Tab(translate("display"), new ConfigPane(controller, controller.config().display()));
 		Tab tabBinding = new Tab(translate("binding"), new ConfigPane(controller, controller.config().keys()));
+		Tab tabEnhancement = new Tab(translate("enhancement"), new ConfigPane(controller, controller.config().enhancement()));
 		Tab tabDecompile = new Tab(translate("decompile"), new ConfigPane(controller, controller.config().decompile()));
 		Tab tabAssembler = new Tab(translate("assembler"), new ConfigPane(controller, controller.config().assembler()));
 		Tab tabUpdates = new Tab(translate("update"), new ConfigPane(controller, controller.config().update()));
-		getTabs().addAll(tabDisplay, tabBinding, tabDecompile, tabAssembler, tabUpdates);
+		getTabs().addAll(tabDisplay, tabBinding, tabEnhancement, tabDecompile, tabAssembler, tabUpdates);
 		// Add plugin tabs
 		PluginsManager.getInstance().ofType(ConfigurablePlugin.class)
 				.forEach(plugin -> getTabs().add(

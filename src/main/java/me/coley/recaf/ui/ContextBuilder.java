@@ -25,6 +25,7 @@ import me.coley.recaf.ui.controls.view.ClassViewport;
 import me.coley.recaf.ui.controls.view.FileViewport;
 import me.coley.recaf.util.*;
 import me.coley.recaf.workspace.JavaResource;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.FieldNode;
@@ -244,7 +245,7 @@ public class ContextBuilder {
 			return null;
 		// Create header
 		int access = reader.getAccess();
-		MenuItem header = new MenuItem(shorten(name));
+		MenuItem header = new MenuItem(shorten(StringEscapeUtils.escapeJava(name)));
 		header.getStyleClass().add("context-menu-header");
 		header.setGraphic(UiUtil.createClassGraphic(access));
 		header.setDisable(true);

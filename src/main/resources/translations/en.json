@@ -544,13 +544,19 @@
 	"binding.decfontsize.name": "Decrease editor font size",
 	"binding.decfontsize.desc": "Decreases the editor's font size.",
 
+	"enhancement": "Enhancements",
+	"enhancement.showfabricentrypoints.name": "Show Fabric Entrypoints",
+	"enhancement.showfabricentrypoints.desc": "Show hints beside fabric entrypoint classes",
+	"enhancement.showmixintargets.name": "Show Mixin Targets",
+	"enhancement.showmixintargets.desc": "Display targeted classes beside Mixin class.",
+
 	"backend": "Backend / Private",
 
 	"decompile": "Decompile",
 	"decompile.decompiler.name": "Decompiler",
 	"decompile.decompiler.desc": "The decompiler engine to use",
 	"decompile.showsynthetics.name": "Show synthetics",
-	"decompile.showsynthetics.desc": "Show compiler-generated code",
+	"decompile.showsynthetics.desc": "Show compiler-generated code.",
 	"decompile.stripdebug.name": "Strip debug",
 	"decompile.stripdebug.desc": "Strip debug info before decompiling.",
 	"decompile.showname.name": "Show name",
