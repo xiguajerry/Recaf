@@ -23,6 +23,7 @@
 		<spotbugs.version>4.0.0</spotbugs.version>
 		<spotbugs-mvn.version>3.1.12.2</spotbugs-mvn.version>
 		<apache.commons.version>3.0</apache.commons.version>
+		<mappingio.version>0.6.1</mappingio.version>
 	</properties>
 	<!-- Additional repo's -->
 	<repositories>
@@ -30,6 +31,11 @@
 		<repository>
 			<id>forge</id>
 			<url>https://files.minecraftforge.net/maven</url>
+		</repository>
+		<!-- 3rd party repo, Fabric -->
+		<repository>
+			<id>fabric</id>
+			<url>https://maven.fabricmc.net/</url>
 		</repository>
 		<!-- 3rd party repo, analyzer -->
 		<repository>
@@ -317,6 +323,16 @@
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
 			<version>${apache.commons.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>net.fabricmc</groupId>
+			<artifactId>mapping-io</artifactId>
+			<version>${mappingio.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jetbrains</groupId>
+			<artifactId>annotations</artifactId>
+			<version>13.0</version>
 		</dependency>
 	</dependencies>
 	<build>

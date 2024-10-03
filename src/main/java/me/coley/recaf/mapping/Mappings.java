@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 public class Mappings {
 	private Map<String, String> mappings;
 	private Map<String, String> reverseClassMappings;
-	private Workspace workspace;
+	protected Workspace workspace;
 	private boolean checkFieldHierarchy;
 	private boolean checkMethodHierarchy;
 	private boolean checkWonkyOuterRelation;

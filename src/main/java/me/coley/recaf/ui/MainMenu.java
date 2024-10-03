@@ -17,6 +17,7 @@ import me.coley.recaf.decompile.Decompiler;
 import me.coley.recaf.mapping.MappingImpl;
 import me.coley.recaf.mapping.Mappings;
 import me.coley.recaf.mapping.TinyV2Mappings;
+import me.coley.recaf.mapping.TinyV2Mappings2;
 import me.coley.recaf.plugin.PluginsManager;
 import me.coley.recaf.plugin.api.MenuProviderPlugin;
 import me.coley.recaf.search.QueryType;
@@ -25,9 +26,11 @@ import me.coley.recaf.ui.controls.pane.*;
 import me.coley.recaf.util.*;
 import me.coley.recaf.util.self.SelfUpdater;
 import me.coley.recaf.workspace.*;
+import net.fabricmc.mappingio.MappingReader;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
@@ -429,7 +432,21 @@ public class MainMenu extends MenuBar {
 		File file = fcLoadMap.showOpenDialog(null);
 		if (file != null) {
 			try {
-				Mappings mappings = new TinyV2Mappings(file.toPath(), controller.getWorkspace(), subType);
+				Mappings mappings = new TinyV2Mappings2(file.toPath(), controller.getWorkspace())
+						.getMappings(subType);
+//				File dump1 = new File("D:\\mappings.txt");
+//				try (FileWriter writer = new FileWriter(dump1)) {
+//					Map<String, String> mapping = mappings.getMappings();
+//					if (mapping != null) {
+//						mapping.forEach((key, value) -> {
+//							try {
+//								writer.write(key + " -> " + value + "\n");
+//							} catch (IOException e) {
+//								throw new RuntimeException(e);
+//							}
+//						});
+//					}
+//				}
 				mappings.setCheckFieldHierarchy(true);
 				mappings.setCheckMethodHierarchy(true);
 				mappings.accept(controller.getWorkspace().getPrimary());
