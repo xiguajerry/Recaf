@@ -10,6 +10,18 @@ public class ConfEnhancement extends Config {
     @Conf("enhancement.asmifier.ignoreframes")
     public boolean asmifierIgnoreFrames = false;
 
+    @Conf("enhancement.gruntdsl.ignorelines")
+    public boolean gruntDSLIgnoreLines = true;
+
+    @Conf("enhancement.gruntdsl.ignoreframes")
+    public boolean gruntDSLIgnoreFrames = false;
+
+    @Conf("enhancement.gruntdsl.ignoremaxs")
+    public boolean gruntDSLIgnoreMaxs = false;
+
+    @Conf("enhancement.gruntdsl.ignorelocalvariable")
+    public boolean gruntDSLIgnoreLocalVariable = false;
+
     ConfEnhancement() {
         super("enhancement");
     }

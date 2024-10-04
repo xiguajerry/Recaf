@@ -553,6 +553,13 @@
 	"enhancement.showmixintargets.desc": "Display targeted classes beside Mixin class.",
 	"enhancement.asmifier.ignoreframes.name": "ASMifier: Ignore frames",
 	"enhancement.asmifier.ignoreframes.desc": "Ignore frames in generating ASM codes",
+	"enhancement.gruntdsl.ignorelines.name": "GruntDSL: Ignore lines",
+	"enhancement.gruntdsl.ignorelines.desc": "Ignore line insn in generating Grunt DSL",
+	"enhancement.gruntdsl.ignoreframes.name": "GruntDSL: Ignore frames",
+	"enhancement.gruntdsl.ignoreframes.desc": "Ignore frame nodes in generating Grunt DSL",
+	"enhancement.gruntdsl.ignoremaxs.name": "GruntDSL: Ignore maxs",
+	"enhancement.gruntdsl.ignoremaxs.desc": "Ignore maxStacks and maxLocals in generating Grunt DSL",
+	"enhancement.gruntdsl.ignorelocalvariable": "Ignore LocalVarNodes in generating Grunt DSL",
 
 	"backend": "Backend / Private",
 

@@ -1,5 +1,7 @@
 package me.coley.recaf.util;
 
+import me.coley.recaf.Recaf;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.objectweb.asm.*;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.util.ASMifier;
@@ -55,11 +57,11 @@ public class GruntASMifier extends ASMifier {
             final String signature,
             final String[] exceptions) {
         stringBuilder.setLength(0);
-        stringBuilder.append("val method = method(modifier = ");
+        stringBuilder.append("val method = method(access = ");
         appendAccessFlags(access);
         stringBuilder.append(", name = ");
         appendConstant(name);
-        stringBuilder.append(", desc = ");
+        stringBuilder.append(", descriptor = ");
         appendConstant(descriptor);
         stringBuilder.append(", signature = ");
         appendConstant(signature);
@@ -89,12 +91,18 @@ public class GruntASMifier extends ASMifier {
         return new GruntASMifier(api, visitorVariableName, annotationVisitorId);
     }
 
+    private void appendString(final String string) {
+        stringBuilder.append('\"');
+        stringBuilder.append(StringEscapeUtils.escapeJava(string));
+        stringBuilder.append('\"');
+    }
+
     @Override
     protected void appendConstant(Object value) {
         if (value == null) {
             stringBuilder.append("null");
         } else if (value instanceof String) {
-            appendString(stringBuilder, (String) value);
+            appendString((String) value);
         } else if (value instanceof Type) {
             stringBuilder.append("Type.getType(\"");
             stringBuilder.append(((Type) value).getDescriptor());
@@ -243,6 +251,7 @@ public class GruntASMifier extends ASMifier {
             final Object[] local,
             final int numStack,
             final Object[] stack) {
+        if (Recaf.getController().config().enhancement().gruntDSLIgnoreFrames) return;
         stringBuilder.setLength(0);
         switch (type) {
             case Opcodes.F_NEW:
@@ -488,6 +497,7 @@ public class GruntASMifier extends ASMifier {
             final Label start,
             final Label end,
             final int index) {
+        if (Recaf.getController().config().enhancement().gruntDSLIgnoreLocalVariable) return;
         stringBuilder.setLength(0);
         stringBuilder.append("\t\tthis@method.methodNode.visitLocalVariable(");
         appendConstant(name);
@@ -519,6 +529,7 @@ public class GruntASMifier extends ASMifier {
 
     @Override
     public void visitLineNumber(final int line, final Label start) {
+        if (Recaf.getController().config().enhancement().gruntDSLIgnoreLines) return;
         stringBuilder.setLength(0);
         stringBuilder.append("\t\tLINE(").append(line).append(", ");
         appendLabel(start);
@@ -535,6 +546,7 @@ public class GruntASMifier extends ASMifier {
 
     @Override
     public void visitMaxs(int maxStack, int maxLocals) {
+        if (Recaf.getController().config().enhancement().gruntDSLIgnoreMaxs) return;
         stringBuilder.setLength(0);
         stringBuilder.append("\tMaxs(").append(maxStack).append(", ").append(maxLocals).append(")\n");
         text.add(stringBuilder.toString());
