@@ -2,7 +2,7 @@ package me.coley.recaf;
 
 import me.coley.recaf.control.Controller;
 import me.coley.recaf.decompile.cfr.CfrDecompiler;
-import me.coley.recaf.decompile.fernflower.FernFlowerDecompiler;
+import me.coley.recaf.decompile.vineflower.VineFlowerDecompiler;
 import me.coley.recaf.decompile.procyon.ProcyonDecompiler;
 import me.coley.recaf.workspace.*;
 import org.junit.jupiter.api.*;
@@ -41,7 +41,7 @@ public class DecompileTest extends Base {
 
 		@Test
 		public void testFernFlower() {
-			FernFlowerDecompiler decompiler = new FernFlowerDecompiler(controller);
+			VineFlowerDecompiler decompiler = new VineFlowerDecompiler(controller);
 			for (String name : controller.getWorkspace().getPrimaryClassNames()) {
 				String decomp = decompiler.decompile(name);
 				assertNotNull(decomp);
@@ -81,7 +81,7 @@ public class DecompileTest extends Base {
 				resource.getClasses();
 				resource.getFiles();
 				controller = setupController(resource);
-				FernFlowerDecompiler decompiler = new FernFlowerDecompiler(controller);
+				VineFlowerDecompiler decompiler = new VineFlowerDecompiler(controller);
 				String decomp = decompiler.decompile("Host$InnerMember");
 				assertNotNull(decomp);
 				assertFalse(decomp.trim().isEmpty());
@@ -97,7 +97,7 @@ public class DecompileTest extends Base {
 				resource.getClasses();
 				resource.getFiles();
 				controller = setupController(resource);
-				FernFlowerDecompiler decompiler = new FernFlowerDecompiler(controller);
+				VineFlowerDecompiler decompiler = new VineFlowerDecompiler(controller);
 				String decomp = decompiler.decompile("Host$1");
 				assertNotNull(decomp);
 				assertFalse(decomp.trim().isEmpty());

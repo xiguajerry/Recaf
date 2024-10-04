@@ -486,21 +486,6 @@ public class ContextBuilder {
 					popup.show(main);
 				});
 				menu.getItems().add(rename);
-				menu.getItems().add(new ActionMenuItem(translate("misc.asmifier"), () -> {
-					ClassNode ownerNode = new ClassNode();
-					new ClassReader(getController().getWorkspace().getPrimary().getClasses().get(owner))
-							.accept(ownerNode, getController().config().enhancement().asmifierIgnoreFrames ? SKIP_FRAMES : 0);
-					MethodNode methodNode = ownerNode.methods.stream().filter(m -> m.name.equals(name) && m.desc.equals(desc)).findFirst().get();
-					ASMifier asmifier = new ASMifier();
-					methodNode.accept(new TraceMethodVisitor(null, asmifier));
-					StringWriter stringWriter = new StringWriter();
-					PrintWriter printWriter = new PrintWriter(stringWriter);
-					asmifier.print(printWriter);
-					Log.info("{}", asmifier.text);
-					ClipboardContent content = new ClipboardContent();
-					content.putString(stringWriter.toString());
-					Clipboard.getSystemClipboard().setContent(content);
-				}));
 			}
 		}
 		// Add edit options
@@ -515,6 +500,38 @@ public class ContextBuilder {
 			//  - Remove
 			//  - Duplicate
 		}
+		menu.getItems().add(new ActionMenuItem(translate("misc.asmifier"), () -> {
+			ClassNode ownerNode = new ClassNode();
+			new ClassReader(getController().getWorkspace().getPrimary().getClasses().get(owner))
+					.accept(ownerNode, getController().config().enhancement().asmifierIgnoreFrames ? SKIP_FRAMES : 0);
+			MethodNode methodNode = ownerNode.methods.stream().filter(m -> m.name.equals(name) && m.desc.equals(desc)).findFirst().get();
+			ASMifier asmifier = new ASMifier();
+			methodNode.accept(new TraceMethodVisitor(null, asmifier));
+			StringWriter stringWriter = new StringWriter();
+			PrintWriter printWriter = new PrintWriter(stringWriter);
+			asmifier.print(printWriter);
+//			Log.info("{}", asmifier.text);
+			ClipboardContent content = new ClipboardContent();
+			content.putString(stringWriter.toString());
+			Clipboard.getSystemClipboard().setContent(content);
+		}));
+		menu.getItems().add(new ActionMenuItem(translate("misc.gruntdsl"), () -> {
+			ClassNode ownerNode = new ClassNode();
+			new ClassReader(getController().getWorkspace().getPrimary().getClasses().get(owner))
+					.accept(ownerNode, getController().config().enhancement().asmifierIgnoreFrames ? SKIP_FRAMES : 0);
+			MethodNode methodNode = ownerNode.methods.stream().filter(m -> m.name.equals(name) && m.desc.equals(desc)).findFirst().get();
+			GruntASMifier asmifier = new GruntASMifier();
+//			asmifier.visitMethod(methodNode.access, methodNode.name, methodNode.desc, methodNode.signature, methodNode.exceptions.toArray(new String[0]));
+			methodNode.accept(new TraceMethodVisitor(null, asmifier
+					.visitMethod(methodNode.access, methodNode.name, methodNode.desc, methodNode.signature, methodNode.exceptions.toArray(new String[0]))));
+			StringWriter stringWriter = new StringWriter();
+			PrintWriter printWriter = new PrintWriter(stringWriter);
+			asmifier.print(printWriter);
+//			Log.info("{}", asmifier.text);
+			ClipboardContent content = new ClipboardContent();
+			content.putString(stringWriter.toString());
+			Clipboard.getSystemClipboard().setContent(content);
+		}));
 		// Inject plugin menus
 		plugins.ofType(ContextMenuInjectorPlugin.class)
 				.forEach(injector -> injector.forMethod(this, menu, owner, name, desc));
