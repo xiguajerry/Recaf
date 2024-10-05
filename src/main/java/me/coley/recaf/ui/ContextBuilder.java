@@ -28,6 +28,7 @@ import me.coley.recaf.util.*;
 import me.coley.recaf.workspace.JavaResource;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldNode;
@@ -323,6 +324,21 @@ public class ContextBuilder {
 							ClipboardContent content = new ClipboardContent();
 							content.putString(stringWriter.toString());
 							Clipboard.getSystemClipboard().setContent(content);
+						}),
+						new ActionMenuItem(translate("misc.genesis"), () -> {
+							GenesisASMifier asmifier = new GenesisASMifier(Opcodes.ASM9,
+									"`" + StringEscapeUtils.escapeJava(name)
+											.replace('/', '_')
+											.replace('\\', '_') + "`",
+									0, 0);
+							StringWriter stringWriter = new StringWriter();
+							PrintWriter printWriter = new PrintWriter(stringWriter);
+							new ClassReader(controller.getWorkspace().getPrimary().getClasses().get(name))
+									.accept(new TraceClassVisitor(null, asmifier, printWriter),
+											getController().config().enhancement().asmifierIgnoreFrames ? SKIP_FRAMES : 0);
+							ClipboardContent content = new ClipboardContent();
+							content.putString(stringWriter.toString());
+							Clipboard.getSystemClipboard().setContent(content);
 						})
 				);
 			}
@@ -500,6 +516,7 @@ public class ContextBuilder {
 			//  - Remove
 			//  - Duplicate
 		}
+
 		menu.getItems().add(new ActionMenuItem(translate("misc.asmifier"), () -> {
 			ClassNode ownerNode = new ClassNode();
 			new ClassReader(getController().getWorkspace().getPrimary().getClasses().get(owner))
@@ -515,6 +532,7 @@ public class ContextBuilder {
 			content.putString(stringWriter.toString());
 			Clipboard.getSystemClipboard().setContent(content);
 		}));
+
 		menu.getItems().add(new ActionMenuItem(translate("misc.gruntdsl"), () -> {
 			ClassNode ownerNode = new ClassNode();
 			new ClassReader(getController().getWorkspace().getPrimary().getClasses().get(owner))
@@ -532,6 +550,23 @@ public class ContextBuilder {
 			content.putString(stringWriter.toString());
 			Clipboard.getSystemClipboard().setContent(content);
 		}));
+
+		menu.getItems().add(new ActionMenuItem(translate("misc.genesis"), () -> {
+			ClassNode ownerNode = new ClassNode();
+			new ClassReader(getController().getWorkspace().getPrimary().getClasses().get(owner))
+					.accept(ownerNode, getController().config().enhancement().asmifierIgnoreFrames ? SKIP_FRAMES : 0);
+			MethodNode methodNode = ownerNode.methods.stream().filter(m -> m.name.equals(name) && m.desc.equals(desc)).findFirst().get();
+			GenesisASMifier asmifier = new GenesisASMifier(Opcodes.ASM9, "`" + StringEscapeUtils.escapeJava(methodNode.name) + "`", 0, 0);
+			methodNode.accept(new TraceMethodVisitor(null, asmifier
+					.visitMethod(methodNode.access, methodNode.name, methodNode.desc, methodNode.signature, methodNode.exceptions.toArray(new String[0]))));
+			StringWriter stringWriter = new StringWriter();
+			PrintWriter printWriter = new PrintWriter(stringWriter);
+			asmifier.print(printWriter);
+			ClipboardContent content = new ClipboardContent();
+			content.putString(stringWriter.toString());
+			Clipboard.getSystemClipboard().setContent(content);
+		}));
+
 		// Inject plugin menus
 		plugins.ofType(ContextMenuInjectorPlugin.class)
 				.forEach(injector -> injector.forMethod(this, menu, owner, name, desc));
