@@ -22,6 +22,9 @@ public class ConfEnhancement extends Config {
     @Conf("enhancement.gruntdsl.ignorelocalvariable")
     public boolean gruntDSLIgnoreLocalVariable = false;
 
+    @Conf("enhancement.genesis.imports")
+    public boolean genesisDSLImports = false;
+
     ConfEnhancement() {
         super("enhancement");
     }

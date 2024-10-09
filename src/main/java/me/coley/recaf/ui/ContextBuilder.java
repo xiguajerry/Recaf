@@ -337,7 +337,9 @@ public class ContextBuilder {
 									.accept(new TraceClassVisitor(null, asmifier, printWriter),
 											getController().config().enhancement().asmifierIgnoreFrames ? SKIP_FRAMES : 0);
 							ClipboardContent content = new ClipboardContent();
-							content.putString(stringWriter.toString());
+							content.putString(getController().config().enhancement().genesisDSLImports
+									? GenesisASMifier.imports + stringWriter
+									: stringWriter.toString());
 							Clipboard.getSystemClipboard().setContent(content);
 						})
 				);
@@ -563,7 +565,9 @@ public class ContextBuilder {
 			PrintWriter printWriter = new PrintWriter(stringWriter);
 			asmifier.print(printWriter);
 			ClipboardContent content = new ClipboardContent();
-			content.putString(stringWriter.toString());
+			content.putString(getController().config().enhancement().genesisDSLImports
+					? GenesisASMifier.imports + stringWriter
+					: stringWriter.toString());
 			Clipboard.getSystemClipboard().setContent(content);
 		}));
 

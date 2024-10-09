@@ -562,6 +562,8 @@
 	"enhancement.gruntdsl.ignoremaxs.desc": "Ignore maxStacks and maxLocals in generating DSL",
 	"enhancement.gruntdsl.ignorelocalvariable.name": "Grunt / Genesis DSL: Ignore LocalVarNodes",
 	"enhancement.gruntdsl.ignorelocalvariable.desc": "Ignore LocalVarNodes in generating DSL",
+	"enhancement.genesis.imports.name": "Ignore LocalVarNodes in generating DSL",
+	"enhancement.genesis.imports.desc": "Ignore LocalVarNodes in generating DSL",
 
 	"backend": "Backend / Private",
 

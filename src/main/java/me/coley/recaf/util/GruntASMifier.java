@@ -310,7 +310,7 @@ public class GruntASMifier extends ASMifier {
     public void visitTypeInsn(int opcode, String type) {
         stringBuilder.setLength(0);
         stringBuilder.append("\t\t").append(OPCODES[opcode]).append("(");
-        appendString(stringBuilder, type);
+        appendString(type);
         stringBuilder.append(")\n");
         text.add(stringBuilder.toString());
     }

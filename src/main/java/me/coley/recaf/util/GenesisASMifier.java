@@ -34,6 +34,12 @@ public class GenesisASMifier extends ASMifier {
                             "Opcodes.NULL",
                             "Opcodes.UNINITIALIZED_THIS"));
 
+    public static final String imports = """
+import net.spartanb312.genesis.extensions.*
+import net.spartanb312.genesis.extensions.insn.*
+import org.objectweb.asm.*
+""";
+
     private int indentLevel;
     private String indentString;
     private boolean isVisitingClass = false;
@@ -54,8 +60,6 @@ public class GenesisASMifier extends ASMifier {
 
     private static String getDSLClassVersion(int version) {
         if (version == Opcodes.V1_1) return "Java1";
-        if (version <= Opcodes.V1_8)
-            return "Java1_" + (version - Opcodes.V1_2 + 2);
         return "Java" + (version - Opcodes.V1_2 + 2);
     }
 
@@ -139,37 +143,57 @@ public class GenesisASMifier extends ASMifier {
             final String[] exceptions) {
         stringBuilder.setLength(0);
         String visitorName = this.name;
-        if (isVisitingClass) visitorName = "method" + methodIndex;
-        stringBuilder.append(indentString).append("val ").append(visitorName).append(" = method(access = ");
-        appendAccessFlags(access);
-        stringBuilder.append(", name = ");
-        appendConstant(name);
-        stringBuilder.append(", desc = ");
-        appendConstant(descriptor);
-        stringBuilder.append(", signature = ");
-        appendConstant(signature);
-        stringBuilder.append(", exceptions = ");
-        if (exceptions != null && exceptions.length > 0) {
-            stringBuilder.append("arrayOf(");
-            for (int i = 0; i < exceptions.length; ++i) {
-                stringBuilder.append(i == 0 ? " " : ", ");
-                appendConstant(exceptions[i]);
+        if (!name.equals("<clinit>")) {
+            if (isVisitingClass) visitorName = "method" + methodIndex;
+            stringBuilder.append(indentString).append("val ").append(visitorName).append(" = method(access = ");
+            appendAccessFlags(access);
+            stringBuilder.append(", name = ");
+            appendConstant(name);
+            stringBuilder.append(", desc = ");
+            appendConstant(descriptor);
+            stringBuilder.append(", signature = ");
+            appendConstant(signature);
+            stringBuilder.append(", exceptions = ");
+            if (exceptions != null && exceptions.length > 0) {
+                stringBuilder.append("arrayOf(");
+                for (int i = 0; i < exceptions.length; ++i) {
+                    stringBuilder.append(i == 0 ? "" : ", ");
+                    appendConstant(exceptions[i]);
+                }
+                stringBuilder.append(")");
+            } else {
+                stringBuilder.append("null");
             }
-            stringBuilder.append(")");
+            stringBuilder.append(") { \n");
         } else {
-            stringBuilder.append("null");
+            stringBuilder.append(indentString).append("clinit { \n");
         }
-        stringBuilder.append(") { \n");
         text.add(stringBuilder.toString());
         GenesisASMifier asmifier = createASMifier("instructionsVisitor", 0, indentLevel + 1);
         asmifier.isVisitingClass = isVisitingClass;
         asmifier.methodIndex = methodIndex++;
         text.add(asmifier.getText());
         text.add(indentString + "}\n");
-        if (isVisitingClass) {
+        if (isVisitingClass && !name.equals("<clinit>")) {
             text.add(indentString + "+" + visitorName + "\n");
         }
         return asmifier;
+    }
+
+    @Override
+    public void visitNestMember(String nestMember) {
+    }
+
+    @Override
+    public void visitNestHost(String nestHost) {
+    }
+
+    @Override
+    public void visitInnerClass(String name, String outerName, String innerName, int access) {
+    }
+
+    @Override
+    public void visitOuterClass(String owner, String name, String descriptor) {
     }
 
     protected GenesisASMifier createASMifier(
@@ -185,7 +209,7 @@ public class GenesisASMifier extends ASMifier {
 
     private void appendString(final String string) {
         stringBuilder.append('\"');
-        stringBuilder.append(StringEscapeUtils.escapeJava(string));
+        stringBuilder.append(StringEscapeUtils.escapeJava(string).replace("$", "\\$"));
         stringBuilder.append('\"');
     }
 
@@ -196,22 +220,26 @@ public class GenesisASMifier extends ASMifier {
         } else if (value instanceof String) {
             appendString((String) value);
         } else if (value instanceof Type) {
-            stringBuilder.append("Type.getType(\"");
-            stringBuilder.append(((Type) value).getDescriptor());
-            stringBuilder.append("\")");
-        } else if (value instanceof Handle) {
+            stringBuilder.append("Type.getType(");
+            appendConstant(((Type) value).getDescriptor());
+            stringBuilder.append(")");
+        } else if (value instanceof Handle handle) {
             stringBuilder.append("Handle(");
-            Handle handle = (Handle) value;
-            stringBuilder.append("Opcodes.").append(HANDLE_TAG[handle.getTag()]).append(", \"");
-            stringBuilder.append(handle.getOwner()).append(COMMA);
-            stringBuilder.append(handle.getName()).append(COMMA);
-            stringBuilder.append(handle.getDesc()).append("\", ");
-            stringBuilder.append(handle.isInterface()).append(')');
-        } else if (value instanceof ConstantDynamic) {
-            stringBuilder.append("ConstantDynamic(\"");
-            ConstantDynamic constantDynamic = (ConstantDynamic) value;
-            stringBuilder.append(constantDynamic.getName()).append(COMMA);
-            stringBuilder.append(constantDynamic.getDescriptor()).append("\", ");
+            stringBuilder.append("Opcodes.").append(HANDLE_TAG[handle.getTag()]).append(", ");
+            appendConstant(handle.getOwner());
+            stringBuilder.append(", ");
+            appendConstant(handle.getName());
+            stringBuilder.append(", ");
+            appendConstant(handle.getDesc());
+            stringBuilder.append(", ");
+            appendConstant(handle.isInterface());
+            stringBuilder.append(')');
+        } else if (value instanceof ConstantDynamic constantDynamic) {
+            stringBuilder.append("ConstantDynamic(");
+            appendConstant(constantDynamic.getName());
+            stringBuilder.append(", ");
+            appendConstant(constantDynamic.getDescriptor());
+            stringBuilder.append(", ");
             appendConstant(constantDynamic.getBootstrapMethod());
             stringBuilder.append(", ");
             int bootstrapMethodArgumentCount = constantDynamic.getBootstrapMethodArgumentCount();
@@ -225,7 +253,7 @@ public class GenesisASMifier extends ASMifier {
         } else if (value instanceof Byte) {
             stringBuilder.append(value).append("toByte()");
         } else if (value instanceof Boolean) {
-            stringBuilder.append(((Boolean) value).booleanValue() ? "true" : "false");
+            stringBuilder.append((Boolean) value ? "true" : "false");
         } else if (value instanceof Short) {
             stringBuilder.append(value).append(".toShort()");
         } else if (value instanceof Character) {
@@ -434,7 +462,7 @@ public class GenesisASMifier extends ASMifier {
     public void visitTypeInsn(int opcode, String type) {
         stringBuilder.setLength(0);
         stringBuilder.append(indentString).append(OPCODES[opcode]).append("(");
-        appendString(stringBuilder, type);
+        appendString(type);
         stringBuilder.append(")\n");
         text.add(stringBuilder.toString());
     }
@@ -541,6 +569,17 @@ public class GenesisASMifier extends ASMifier {
     }
 
     @Override
+    public void visitIntInsn(int opcode, int operand) {
+        stringBuilder.setLength(0);
+        stringBuilder.append(indentString)
+                .append(OPCODES[opcode])
+                .append("(");
+        appendConstant(operand);
+        stringBuilder.append(")\n");
+        text.add(stringBuilder.toString());
+    }
+
+    @Override
     public void visitTableSwitchInsn(
             final int min, final int max, final Label dflt, final Label... labels) {
         stringBuilder.setLength(0);
@@ -573,25 +612,26 @@ public class GenesisASMifier extends ASMifier {
         }
         declareLabel(dflt);
 
-        stringBuilder.append(indentString).append("+LookupSwitchInsnNode(");
+        stringBuilder.append(indentString).append("LOOKUPSWITCH(");
         appendLabel(dflt);
-        stringBuilder.append(", intArrayOf(");
+        stringBuilder.append(".node, intArrayOf(");
         for (int i = 0; i < keys.length; ++i) {
             stringBuilder.append(i == 0 ? " " : ", ").append(keys[i]);
         }
-        stringBuilder.append("), arrayof(");
+        stringBuilder.append("), arrayOf(");
         for (int i = 0; i < labels.length; ++i) {
             stringBuilder.append(i == 0 ? " " : ", ");
             appendLabel(labels[i]);
+            stringBuilder.append(".node");
         }
-        stringBuilder.append("))");
+        stringBuilder.append("))\n");
         text.add(stringBuilder.toString());
     }
 
     @Override
     public void visitMultiANewArrayInsn(final String descriptor, final int numDimensions) {
         stringBuilder.setLength(0);
-        stringBuilder.append(indentString).append("+MultiANewArrayInsnNode(");
+        stringBuilder.append(indentString).append("ANEWARRAY(");
         appendConstant(descriptor);
         stringBuilder.append(", ").append(numDimensions).append(")\n");
         text.add(stringBuilder.toString());
@@ -604,14 +644,15 @@ public class GenesisASMifier extends ASMifier {
         declareLabel(start);
         declareLabel(end);
         declareLabel(handler);
-        stringBuilder.append(indentString).append("this@method.methodNode.visitTryCatchBlock(");
+        stringBuilder.append(indentString).append("TRYCATCH(");
         appendLabel(start);
         stringBuilder.append(", ");
         appendLabel(end);
         stringBuilder.append(", ");
         appendLabel(handler);
         stringBuilder.append(", ");
-        appendConstant(type);
+        if (type != null) appendConstant(type);
+        else appendConstant("java/lang/Throwable");
         stringBuilder.append(")\n");
         text.add(stringBuilder.toString());
     }
