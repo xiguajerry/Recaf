@@ -383,7 +383,26 @@ import org.objectweb.asm.*
         return new ASMifier();
     }
 
-//    @Override
+    @Override
+    public ASMifier visitAnnotation(String descriptor, boolean visible) {
+        stringBuilder.setLength(0);
+        if (visible) {
+            stringBuilder.append(indentString).append("+AnnotationNode(");
+        } else {
+            stringBuilder.append(indentString).append("+InvisibleAnnotationNode(");
+        }
+        appendConstant(descriptor);
+        stringBuilder.append(")\n");
+        text.add(stringBuilder.toString());
+        return new ASMifier();
+    }
+
+    @Override
+    public ASMifier visitAnnotation(String name, String descriptor) {
+        return super.visitAnnotation(name, descriptor);
+    }
+
+    //    @Override
 //    public void visitAnnotationEnd() {
 //        super.visitAnnotationEnd();
 //    }
@@ -418,7 +437,7 @@ import org.objectweb.asm.*
                 if (type == Opcodes.F_NEW) {
                     stringBuilder.append(indentString).append("FRAME(Opcodes.F_NEW, ");
                 } else {
-                    stringBuilder.append(indentString).append("\t\tFRAME(Opcodes.F_FULL, ");
+                    stringBuilder.append(indentString).append("FRAME(Opcodes.F_FULL, ");
                 }
                 stringBuilder.append(numLocal).append(", arrayOf(");
                 appendFrameTypes(numLocal, local);
@@ -429,7 +448,7 @@ import org.objectweb.asm.*
             case Opcodes.F_APPEND:
                 declareFrameTypes(numLocal, local);
                 stringBuilder.append(indentString)
-                        .append("\t\tFRAME(Opcodes.F_APPEND, ")
+                        .append("FRAME(Opcodes.F_APPEND, ")
                         .append(numLocal)
                         .append(", arrayOf(");
                 appendFrameTypes(numLocal, local);
@@ -628,11 +647,11 @@ import org.objectweb.asm.*
         appendLabel(dflt);
         stringBuilder.append(".node, intArrayOf(");
         for (int i = 0; i < keys.length; ++i) {
-            stringBuilder.append(i == 0 ? " " : ", ").append(keys[i]);
+            stringBuilder.append(i == 0 ? "" : ", ").append(keys[i]);
         }
         stringBuilder.append("), arrayOf(");
         for (int i = 0; i < labels.length; ++i) {
-            stringBuilder.append(i == 0 ? " " : ", ");
+            stringBuilder.append(i == 0 ? "" : ", ");
             appendLabel(labels[i]);
             stringBuilder.append(".node");
         }
@@ -698,6 +717,7 @@ import org.objectweb.asm.*
         text.add(stringBuilder.toString());
     }
 
+    @Override
     protected void declareLabel(final Label label) {
         if (labelNames == null) {
             labelNames = new HashMap<>();
@@ -706,10 +726,17 @@ import org.objectweb.asm.*
         if (labelName == null) {
             labelName = "label" + labelNames.size();
             labelNames.put(label, labelName);
-            StringBuilder sb = new StringBuilder();
-            sb.append("\t".repeat(indentLevel - 1)).append("val ").append(labelName).append(" = Label()\n");
-            text.add(0, sb.toString());
+//            StringBuilder sb = new StringBuilder();
+//            sb.append("\t".repeat(indentLevel - 1)).append("val ").append(labelName).append(" = Label()\n");
+//            text.add(0, sb.toString());
         }
+    }
+
+    @Override
+    protected void appendLabel(final Label label) {
+        stringBuilder.append("L[\"");
+        stringBuilder.append(labelNames.get(label));
+        stringBuilder.append("\"]");
     }
 
     @Override
