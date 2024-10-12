@@ -70,7 +70,8 @@ import org.objectweb.asm.*
             String name,
             String signature,
             String superName,
-            String[] interfaces) {
+            String[] interfaces
+    ) {
         stringBuilder.setLength(0);
         stringBuilder.append(indentString).append("val ").append(this.name).append(" = clazz(\n");
         stringBuilder.append(indentString).append("\taccess = ");
@@ -85,6 +86,8 @@ import org.objectweb.asm.*
         appendConstant(signature);
         stringBuilder.append(", \n").append(indentString).append("\tversion = ");
         stringBuilder.append(getDSLClassVersion(version));
+        if ((version & Opcodes.V_PREVIEW) == Opcodes.V_PREVIEW)
+            stringBuilder.append(" + Preview");
         stringBuilder.append("\n").append(indentString).append(") { \n");
         text.add(stringBuilder.toString());
         this.isVisitingClass = true;
@@ -140,7 +143,8 @@ import org.objectweb.asm.*
             final String name,
             final String descriptor,
             final String signature,
-            final String[] exceptions) {
+            final String[] exceptions
+    ) {
         stringBuilder.setLength(0);
         String visitorName = this.name;
         if (!name.equals("<clinit>")) {
@@ -197,13 +201,15 @@ import org.objectweb.asm.*
     }
 
     protected GenesisASMifier createASMifier(
-            final String visitorVariableName, final int annotationVisitorId, int indentLevel) {
+            final String visitorVariableName, final int annotationVisitorId, int indentLevel
+    ) {
         return new GenesisASMifier(api, visitorVariableName, annotationVisitorId, indentLevel);
     }
 
     @Override
     protected GenesisASMifier createASMifier(
-            final String visitorVariableName, final int annotationVisitorId) {
+            final String visitorVariableName, final int annotationVisitorId
+    ) {
         return new GenesisASMifier(api, visitorVariableName, annotationVisitorId, 0);
     }
 
@@ -400,7 +406,8 @@ import org.objectweb.asm.*
             final int numLocal,
             final Object[] local,
             final int numStack,
-            final Object[] stack) {
+            final Object[] stack
+    ) {
         if (Recaf.getController().config().enhancement().gruntDSLIgnoreFrames) return;
         stringBuilder.setLength(0);
         switch (type) {
@@ -508,7 +515,8 @@ import org.objectweb.asm.*
             final String name,
             final String descriptor,
             final Handle bootstrapMethodHandle,
-            final Object... bootstrapMethodArguments) {
+            final Object... bootstrapMethodArguments
+    ) {
         stringBuilder.setLength(0);
         stringBuilder.append(indentString).append("INVOKEDYNAMIC(");
         appendConstant(name);
@@ -581,7 +589,11 @@ import org.objectweb.asm.*
 
     @Override
     public void visitTableSwitchInsn(
-            final int min, final int max, final Label dflt, final Label... labels) {
+            final int min,
+            final int max,
+            final Label dflt,
+            final Label... labels
+    ) {
         stringBuilder.setLength(0);
         for (Label label : labels) {
             declareLabel(label);
@@ -639,7 +651,11 @@ import org.objectweb.asm.*
 
     @Override
     public void visitTryCatchBlock(
-            final Label start, final Label end, final Label handler, final String type) {
+            final Label start,
+            final Label end,
+            final Label handler,
+            final String type
+    ) {
         stringBuilder.setLength(0);
         declareLabel(start);
         declareLabel(end);
@@ -664,7 +680,8 @@ import org.objectweb.asm.*
             final String signature,
             final Label start,
             final Label end,
-            final int index) {
+            final int index
+    ) {
         if (Recaf.getController().config().enhancement().gruntDSLIgnoreLocalVariable) return;
         stringBuilder.setLength(0);
         stringBuilder.append(indentString).append("LOCALVAR(");

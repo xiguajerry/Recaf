@@ -95,7 +95,7 @@ public class ConfigPane extends ColumnPane {
         editorOverrides.put("decompile.showsynthetics", Toggle::new);
         editorOverrides.put("decompile.stripdebug", Toggle::new);
         editorOverrides.put("decompile.showname", Toggle::new);
-        editorOverrides.put("decompile.timeout", (w) -> new NumberSlider<>(controller, w, 1_000, 20_000, 1_000));
+        editorOverrides.put("decompile.timeout", (w) -> new NumberSlider<>(controller, w, 1_000, 240_000, 1_000));
         hideUnsupported = true;
         setupConfigControls(config);
     }
