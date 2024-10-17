@@ -5,10 +5,7 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.objectweb.asm.*;
 import org.objectweb.asm.util.ASMifier;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public class GenesisASMifier extends ASMifier {
     /** A pseudo access flag used to distinguish class access flags. */
@@ -24,15 +21,14 @@ public class GenesisASMifier extends ASMifier {
     private static final int ACCESS_MODULE = 0x200000;
 
     private static final List<String> FRAME_TYPES =
-            Collections.unmodifiableList(
-                    Arrays.asList(
-                            "Opcodes.TOP",
-                            "Opcodes.INTEGER",
-                            "Opcodes.FLOAT",
-                            "Opcodes.DOUBLE",
-                            "Opcodes.LONG",
-                            "Opcodes.NULL",
-                            "Opcodes.UNINITIALIZED_THIS"));
+            List.of("Opcodes.TOP",
+                    "Opcodes.INTEGER",
+                    "Opcodes.FLOAT",
+                    "Opcodes.DOUBLE",
+                    "Opcodes.LONG",
+                    "Opcodes.NULL",
+                    "Opcodes.UNINITIALIZED_THIS"
+            );
 
     public static final String imports = """
 import net.spartanb312.genesis.extensions.*
@@ -373,39 +369,104 @@ import org.objectweb.asm.*
     public ASMifier visitFieldAnnotation(String descriptor, boolean visible) {
         stringBuilder.setLength(0);
         if (visible) {
-            stringBuilder.append(indentString).append("+AnnotationNode(");
+            stringBuilder.append(indentString).append("+annotation(descriptor = ");
         } else {
-            stringBuilder.append(indentString).append("+InvisibleAnnotationNode(");
+            stringBuilder.append(indentString).append("+invisibleAnnotation(descriptor = ");
         }
         appendConstant(descriptor);
-        stringBuilder.append(")\n");
+        stringBuilder.append(") {\n");
         text.add(stringBuilder.toString());
-        return new ASMifier();
+        GenesisASMifier asmifier = new GenesisASMifier(api, name, 0, indentLevel + 1);
+        text.add(asmifier.getText());
+        text.add(indentString + "}\n");
+        return asmifier;
     }
 
     @Override
     public ASMifier visitAnnotation(String descriptor, boolean visible) {
         stringBuilder.setLength(0);
         if (visible) {
-            stringBuilder.append(indentString).append("+AnnotationNode(");
+            stringBuilder.append(indentString).append("+annotation(descriptor = ");
         } else {
-            stringBuilder.append(indentString).append("+InvisibleAnnotationNode(");
+            stringBuilder.append(indentString).append("+invisibleAnnotation(descriptor = ");
         }
         appendConstant(descriptor);
-        stringBuilder.append(")\n");
+        stringBuilder.append(") {\n");
         text.add(stringBuilder.toString());
-        return new ASMifier();
+        GenesisASMifier asmifier = new GenesisASMifier(api, name, 0, indentLevel + 1);
+        text.add(asmifier.getText());
+        text.add(indentString + "}\n");
+        return asmifier;
     }
 
     @Override
     public ASMifier visitAnnotation(String name, String descriptor) {
-        return super.visitAnnotation(name, descriptor);
+        stringBuilder.setLength(0);
+        stringBuilder.append(indentString).append("ANNOTATION(name = ");
+        appendConstant(name);
+        stringBuilder.append(indentString).append(", annotation(descriptor = ");
+        appendConstant(descriptor);
+        stringBuilder.append(") {\n");
+        text.add(stringBuilder.toString());
+        GenesisASMifier asmifier = new GenesisASMifier(api, name, 0, indentLevel + 1);
+        text.add(asmifier.getText());
+        text.add(indentString + "})\n");
+        return asmifier;
     }
 
-    //    @Override
-//    public void visitAnnotationEnd() {
+    @Override
+    public void visitEnum(String name, String descriptor, String value) {
+        stringBuilder.setLength(0);
+        stringBuilder.append(indentString).append("ENUM(");
+        appendConstant(name);
+        stringBuilder.append(", ");
+        appendConstant(descriptor);
+        stringBuilder.append(", ");
+        appendConstant(value);
+        stringBuilder.append(")\n");
+        text.add(stringBuilder.toString());
+    }
+
+    @Override
+    public ASMifier visitArray(String name) {
+        stringBuilder.setLength(0);
+        stringBuilder.append(indentString).append("ARRAY(name = ");
+        appendConstant(name);
+        stringBuilder.append(") {\n");
+        text.add(stringBuilder.toString());
+        GenesisASMifier asmifier = new GenesisASMifier(api, name, 0, indentLevel + 1);
+        text.add(asmifier.getText());
+        text.add(indentString + "})\n");
+        return asmifier;
+    }
+
+    @Override
+    public ASMifier visitAnnotationDefault() {
+        stringBuilder.setLength(0);
+        stringBuilder.append(indentString).append("ANNOTATIONDEFAULT");
+        stringBuilder.append(" {\n");
+        text.add(stringBuilder.toString());
+        GenesisASMifier asmifier = new GenesisASMifier(api, name, 0, indentLevel + 1);
+        text.add(asmifier.getText());
+        text.add(indentString + "}\n");
+        return asmifier;
+    }
+
+    @Override
+    public void visit(String name, Object value) {
+        stringBuilder.setLength(0);
+        stringBuilder.append(indentString).append("VALUE(");
+        appendConstant(name);
+        stringBuilder.append(", ");
+        appendConstant(value);
+        stringBuilder.append(")\n");
+        text.add(stringBuilder.toString());
+    }
+
+    @Override
+    public void visitAnnotationEnd() {
 //        super.visitAnnotationEnd();
-//    }
+    }
 
     @Override
     public void visitFieldEnd() {
