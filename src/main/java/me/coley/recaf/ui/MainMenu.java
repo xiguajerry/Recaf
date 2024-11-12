@@ -330,6 +330,7 @@ public class MainMenu extends MenuBar {
 		if (controller.getWorkspace() != null) {
 			dcSaveDecompiled.setInitialDirectory(config().getRecentSaveAppDir());
 			File file = dcSaveDecompiled.showDialog(null);
+			if (file == null) return;
 			assert file.isDirectory();
 
 			Decompiler decompiler = controller.config().decompile().decompiler.create(controller);
